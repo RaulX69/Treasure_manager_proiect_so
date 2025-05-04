@@ -6,17 +6,9 @@
 #include <sys/stat.h>
 #include <time.h>
 #include <dirent.h>
+#include "treasure_manager.h"
 
 #define TREASURE_FILE "treasure.dat"
-
-typedef struct{
-    char id[21];
-    char user_name[21];
-    float latitude;
-    float longitude;
-    char clue[51];
-    int value;
-}treasure;
 
 treasure create_treasure()
 {
@@ -47,7 +39,7 @@ void log_op(const char* hunt_id, const char* message)
     int fd;
     if((fd = open(log_path, O_WRONLY|O_CREAT|O_APPEND, 0644)) == -1)
     {
-        perror("eroare la deschidere fisier\n");
+        perror("error when opening file\n");
         exit(-1);
     }
     time_t t = time(NULL);
@@ -78,12 +70,12 @@ void add(const char* hunt_id, treasure* new_treasure)
     int fd;
     if((fd = open(file_path, O_WRONLY|O_CREAT|O_APPEND, 0666)) == -1)
     {
-        perror("eroare la deschidere fisier\n");
+        perror("error when opening file\n");
         exit(-1);
     }
     if(write(fd, new_treasure, sizeof(treasure)) != sizeof(treasure))
     {
-        perror("eroare la scriere in fisier\n");
+        perror("error when writing in file\n");
         close(fd);
         exit(-1);
     }
@@ -101,7 +93,7 @@ void list(const char* hunt_id)
     stat(dir_path, &dir_stat);
     if(!S_ISDIR(dir_stat.st_mode))
     {
-        perror("eroare accesare director\n");
+        perror("error when accessing director\n");
         exit(-1);
     }
     char file_path[150];
@@ -109,13 +101,13 @@ void list(const char* hunt_id)
     int fd;
     if((fd = open(file_path, O_RDONLY)) == -1)
     {
-        perror("eroare la deschidere fisier\n");
+        perror("error when opening file\n");
         exit(-1);
     }
     struct stat file_stat;
     if(stat(file_path, &file_stat) == -1)
     {
-        perror("eroare fisier\n");
+        perror("error file\n");
         exit(-1);
     }
     printf("Hunt Name: %s\n", hunt_id);
@@ -138,7 +130,8 @@ void view(const char* hunt_id, const char* treasure_id)
     stat(dir_path, &dir_stat);
     if(!S_ISDIR(dir_stat.st_mode))
     {
-        perror("eroare accesare director\n");
+        //perror("error when accessing director\n");
+        printf("Hunt not found\n");
         exit(-1);
     }
     char file_path[150];
@@ -146,7 +139,7 @@ void view(const char* hunt_id, const char* treasure_id)
     int fd;
     if((fd = open(file_path, O_RDONLY)) == -1)
     {
-        perror("eroare la deschidere fisier\n");
+        perror("error when opening file\n");
         exit(-1);
     }
     treasure treasure;
@@ -177,7 +170,7 @@ void remove_treasure(const char* hunt_id, const char* treasure_id)
     stat(dir_path, &dir_stat);
     if(!S_ISDIR(dir_stat.st_mode))
     {
-        perror("eroare accesare director\n");
+        perror("error when accessing director\n");
         exit(-1);
     }
     char file_path[150];
@@ -185,7 +178,7 @@ void remove_treasure(const char* hunt_id, const char* treasure_id)
     int fd;
     if((fd = open(file_path, O_RDONLY)) == -1)
     {
-        perror("eroare la deschidere fisier\n");
+        perror("error when opening file\n");
         exit(-1);
     }
     char temp_path[150];
@@ -193,7 +186,7 @@ void remove_treasure(const char* hunt_id, const char* treasure_id)
     int fd2;
     if((fd2 = open(temp_path, O_WRONLY | O_CREAT | O_TRUNC,  0666)) == -1)
     {
-        perror("eroare la deschidere fisier 2\n");
+        perror("error when opening file 2\n");
         exit(-1);
     }
     treasure treasure;
@@ -233,7 +226,7 @@ void remove_hunt(const char* hunt_id)
     DIR *dir = opendir(dir_path);
     if(!dir)
     {
-        perror("eroare la deschidere director\n");
+        perror("error when opening director\n");
         exit(-1);
     }
     struct dirent *entry;
@@ -249,80 +242,7 @@ void remove_hunt(const char* hunt_id)
     closedir(dir);
     if(rmdir(dir_path) != 0)
     {
-        perror("Eroare la stergere director\n");
+        perror("error when deleting director\n");
         exit(-1);
     }
-}
-int main(int argc, char** argv)
-{
-    if(argc > 1)
-    {
-        if(strcmp(argv[1], "--add") == 0)
-        {
-            if(argc == 3)
-            {
-                treasure new_treasure = create_treasure();
-                add(argv[2], &new_treasure);
-            }
-            else
-            {
-                perror("usage: ./exe --add <hunt_id>\n");
-                exit(-1);
-            }
-        }
-        if(strcmp(argv[1], "--list") == 0)
-        {
-            if(argc == 3)
-            {
-                list(argv[2]);
-            }
-            else
-            {
-                perror("usage: ./exe --list <hunt_id>\n");
-                exit(-1);
-            }
-        }
-        if(strcmp(argv[1], "--view") == 0)
-        {
-            if(argc == 4)
-            {
-                view(argv[2], argv[3]);
-            }
-            else
-            {
-                perror("usage: ./exe --view <hunt_id> <id>\n");
-                exit(-1);
-            }
-        }
-        if(strcmp(argv[1], "--remove_treasure") == 0)
-        {
-            if(argc == 4)
-            {
-                remove_treasure(argv[2], argv[3]);
-            }
-            else
-            {
-                perror("usage: ./exe --remove_treasure <hunt_id> <id>\n");
-                exit(-1);
-            }
-        }
-        if(strcmp(argv[1], "--remove_hunt") == 0)
-        {
-            if(argc == 3)
-            {
-                remove_hunt(argv[2]);
-            }
-            else
-            {
-                perror("usage: ./exe --remove_hunt <hunt_id>\n");
-                exit(-1);
-            }
-        }
-    }
-    else
-    {
-        perror("usage: ./exe <operation> <other arguments>\n");
-        exit(-1);
-    }
-    return 0;
 }
