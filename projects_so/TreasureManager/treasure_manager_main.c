@@ -16,7 +16,7 @@ int main(int argc, char** argv)
             }
             else
             {
-                perror("usage: ./exe --add <hunt_id>\n");
+                printf("usage: ./exe --add <hunt_id>\n");
                 exit(-1);
             }
         }
@@ -28,7 +28,7 @@ int main(int argc, char** argv)
             }
             else
             {
-                perror("usage: ./exe --list <hunt_id>\n");
+                printf("usage: ./exe --list <hunt_id>\n");
                 exit(-1);
             }
         }
@@ -40,7 +40,7 @@ int main(int argc, char** argv)
             }
             else
             {
-                perror("usage: ./exe --view <hunt_id> <id>\n");
+                printf("usage: ./exe --view <hunt_id> <id>\n");
                 exit(-1);
             }
         }
@@ -52,7 +52,7 @@ int main(int argc, char** argv)
             }
             else
             {
-                perror("usage: ./exe --remove_treasure <hunt_id> <id>\n");
+                printf("usage: ./exe --remove_treasure <hunt_id> <id>\n");
                 exit(-1);
             }
         }
@@ -64,14 +64,14 @@ int main(int argc, char** argv)
             }
             else
             {
-                perror("usage: ./exe --remove_hunt <hunt_id>\n");
+                printf("usage: ./exe --remove_hunt <hunt_id>\n");
                 exit(-1);
             }
         }
     }
     else
     {
-        perror("usage: ./exe <operation> <other arguments>\n");
+        printf("usage: ./exe <operation> <other arguments>\n");
         exit(-1);
     }
     return 0;

@@ -39,7 +39,7 @@ void log_op(const char* hunt_id, const char* message)
     int fd;
     if((fd = open(log_path, O_WRONLY|O_CREAT|O_APPEND, 0644)) == -1)
     {
-        perror("error when opening file\n");
+        printf("error when opening file\n");
         exit(-1);
     }
     time_t t = time(NULL);
@@ -70,12 +70,12 @@ void add(const char* hunt_id, treasure* new_treasure)
     int fd;
     if((fd = open(file_path, O_WRONLY|O_CREAT|O_APPEND, 0666)) == -1)
     {
-        perror("error when opening file\n");
+        printf("error when opening file\n");
         exit(-1);
     }
     if(write(fd, new_treasure, sizeof(treasure)) != sizeof(treasure))
     {
-        perror("error when writing in file\n");
+        printf("error when writing in file\n");
         close(fd);
         exit(-1);
     }
@@ -93,7 +93,7 @@ void list(const char* hunt_id)
     stat(dir_path, &dir_stat);
     if(!S_ISDIR(dir_stat.st_mode))
     {
-        perror("error when accessing director\n");
+        printf("error when accessing director\n");
         exit(-1);
     }
     char file_path[150];
@@ -101,17 +101,17 @@ void list(const char* hunt_id)
     int fd;
     if((fd = open(file_path, O_RDONLY)) == -1)
     {
-        perror("error when opening file\n");
+        printf("error when opening file\n");
         exit(-1);
     }
     struct stat file_stat;
     if(stat(file_path, &file_stat) == -1)
     {
-        perror("error file\n");
+        printf("error file\n");
         exit(-1);
     }
     printf("Hunt Name: %s\n", hunt_id);
-    printf("Total File Siez: %ld bytes\n", file_stat.st_size);
+    printf("Total File Size: %ld bytes\n", file_stat.st_size);
     printf("Last Modification Time: %s\n", ctime(&file_stat.st_mtime));
     treasure treasure;
     while(read(fd, &treasure, sizeof(treasure)) == sizeof(treasure))
@@ -130,7 +130,6 @@ void view(const char* hunt_id, const char* treasure_id)
     stat(dir_path, &dir_stat);
     if(!S_ISDIR(dir_stat.st_mode))
     {
-        //perror("error when accessing director\n");
         printf("Hunt not found\n");
         exit(-1);
     }
@@ -139,7 +138,7 @@ void view(const char* hunt_id, const char* treasure_id)
     int fd;
     if((fd = open(file_path, O_RDONLY)) == -1)
     {
-        perror("error when opening file\n");
+        printf("error when opening file\n");
         exit(-1);
     }
     treasure treasure;
@@ -170,7 +169,7 @@ void remove_treasure(const char* hunt_id, const char* treasure_id)
     stat(dir_path, &dir_stat);
     if(!S_ISDIR(dir_stat.st_mode))
     {
-        perror("error when accessing director\n");
+        printf("error when accessing director\n");
         exit(-1);
     }
     char file_path[150];
@@ -178,7 +177,7 @@ void remove_treasure(const char* hunt_id, const char* treasure_id)
     int fd;
     if((fd = open(file_path, O_RDONLY)) == -1)
     {
-        perror("error when opening file\n");
+        printf("error when opening file\n");
         exit(-1);
     }
     char temp_path[150];
@@ -186,7 +185,7 @@ void remove_treasure(const char* hunt_id, const char* treasure_id)
     int fd2;
     if((fd2 = open(temp_path, O_WRONLY | O_CREAT | O_TRUNC,  0666)) == -1)
     {
-        perror("error when opening file 2\n");
+        printf("error when opening file 2\n");
         exit(-1);
     }
     treasure treasure;
@@ -226,7 +225,7 @@ void remove_hunt(const char* hunt_id)
     DIR *dir = opendir(dir_path);
     if(!dir)
     {
-        perror("error when opening director\n");
+        printf("error when opening director\n");
         exit(-1);
     }
     struct dirent *entry;
@@ -242,7 +241,7 @@ void remove_hunt(const char* hunt_id)
     closedir(dir);
     if(rmdir(dir_path) != 0)
     {
-        perror("error when deleting director\n");
+        printf("error when deleting director\n");
         exit(-1);
     }
 }

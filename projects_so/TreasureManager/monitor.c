@@ -8,8 +8,6 @@
 #include <fcntl.h>
 #include "treasure_manager.h"
 
-#define COMMAND_FILE "command.txt"
-
 void list_hunts() 
 {
     DIR *dir = opendir(".");
@@ -52,62 +50,62 @@ void list_hunts()
         }
     }
     closedir(dir);
+    fflush(stdout);
 }
 
 void handle_sigusr1(int signum)
 {
     list_hunts();
-    remove(COMMAND_FILE);
+    fflush(stdout);
 }
 
 void handle_sigusr2(int signum)
 {
-    FILE *fp = fopen(COMMAND_FILE, "r");
-    if (!fp)
-    {
-        perror("Could not open command file for reading");
-        return;
-    }
-
     char hunt_id[32];
-    if (fgets(hunt_id, sizeof(hunt_id), fp))
+    if (fgets(hunt_id, sizeof(hunt_id), stdin))
     {
         hunt_id[strcspn(hunt_id, "\n")] = 0;
-        list(hunt_id);
+        pid_t pid = fork();
+        if(pid == 0)
+        {
+            execl("./exe", "./exe", "--list", hunt_id, NULL);
+            perror("perror at execl\n");
+            exit(1);
+        }
     }
-    fclose(fp);
-    remove(COMMAND_FILE);
+    else
+    {
+        perror("invalid format\n");
+    }
 }
 
 void handle_sigint(int signum)
 {
-    FILE *fp = fopen(COMMAND_FILE, "r");
-    if (!fp)
-    {
-        perror("Could not open command file for reading");
-        return;
-    }
-
     char line[128];
-    if (fgets(line, sizeof(line), fp))
+    if (fgets(line, sizeof(line), stdin))
     {
         char hunt_id[32], treasure_id[40];
         if (sscanf(line, "%s %s", hunt_id, treasure_id) == 2)
         {
-            view(hunt_id, treasure_id);
+            pid_t pid = fork();
+            if(pid == 0)
+            {
+                execl("./exe", "./exe", "--view", hunt_id, treasure_id, NULL);
+                perror("error at execl\n");
+                exit(1);
+            }
         }
         else
         {
-            fprintf(stderr, "Invalid command format in file\n");
+            perror("invalid format\n");
         }
     }
-
-    fclose(fp);
-    remove(COMMAND_FILE);
 }
 
 void handle_sigterm(int signum)
 {
+    usleep(3000000);
+    fflush(stdout);
     exit(0);
 }
 
@@ -133,8 +131,6 @@ void setup_signal_handlers()
 int main()
 {
     setup_signal_handlers();
-
-    printf("[MONITOR] Running... PID = %d\n", getpid());
 
     while (1)
     {
